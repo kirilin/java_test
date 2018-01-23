@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class MatrixMain {
+public class Main {
 	private final static String INPUT_FILE_URL = "557/input.txt"; 
 	private final static String OUTPUT_FILE_URL = "557/output.txt";
 	//m - количество матриц, n - размер каждой из матриц (в диапазоне MIN_SIZE, MAX_SIZE) 
@@ -20,21 +20,27 @@ public class MatrixMain {
 	private static int sizeOfMatrix;					//Размер матриц sizeOfMatrix*sizeOfMatrix
 	private static int[] findElement = new int[2];		//Позиция искомого элемента
 	private static int numberLimit;						//ограничение значений в матрицах
-	private static ArrayList<MatrixC> matrixList = new ArrayList<MatrixC>(); //Список матриц
+	private static ArrayList<Matrix> matrixList = new ArrayList<Matrix>(); //Список матриц
 	
 	public static void main(String[] args) throws IOException {
+		int resultNumber;
 		if (getDataFromFile()) {		
 			if(numOfMatrix == 1) {
-				setDataToFile(String.valueOf(matrixList.get(0).getMatrix()[findElement[0]][findElement[1]]));
+				resultNumber = matrixList.get(0).getMatrix()[findElement[0]][findElement[1]];
+			} else {
+			
+				Matrix resultMatrix = multiplyMatrix(matrixList.get(0), matrixList.get(1));
+				for (int count = 2; count < numOfMatrix; count ++) {
+					resultMatrix = multiplyMatrix(resultMatrix, matrixList.get(count));
+				}
+				resultNumber = resultMatrix.getMatrix()[findElement[0]][findElement[1]];
 			}
 			
-			MatrixC resultMatrix = multiplyMatrix(matrixList.get(0), matrixList.get(1));
+			/*if (resultNumber >= numberLimit) {
+				resultNumber = resultNumber % numberLimit;
+			} */
 			
-			for (int count = 2; count < numOfMatrix; count ++) {
-				resultMatrix = multiplyMatrix(resultMatrix, matrixList.get(count));
-			}
-			
-			setDataToFile(String.valueOf(resultMatrix.getMatrix()[findElement[0]][findElement[1]]));
+			setDataToFile(String.valueOf(resultNumber));
 			
 		} else {
 			setDataToFile("ERROR! Wrong input data");
@@ -43,8 +49,8 @@ public class MatrixMain {
 	}
 	
 	//Умножение двух матрий
-	public static MatrixC multiplyMatrix(MatrixC a, MatrixC b) {
-		MatrixC res = new MatrixC(sizeOfMatrix);
+	public static Matrix multiplyMatrix(Matrix a, Matrix b) {
+		Matrix res = new Matrix(sizeOfMatrix);
 
 		for (int i = 0; i < sizeOfMatrix; i++) {
 			for (int j = 0; j < sizeOfMatrix; j++) {
@@ -73,57 +79,32 @@ public class MatrixMain {
 				splitLine = lineFromFile.trim().split(" ");
 				numOfMatrix = Integer.parseInt(splitLine[0]);		
 				sizeOfMatrix = Integer.parseInt(splitLine[1]);		
-				if (numOfMatrix < MIN_SIZE || numOfMatrix > MAX_SIZE || 
-					sizeOfMatrix < MIN_SIZE || sizeOfMatrix > MAX_SIZE) {
-					return false;
-				}
-			} else {
-				return false;
-			}
+			} 
 			
 			//Получаем позицию искомого элемента
 			if ((lineFromFile = fileReader.readLine()) != null) {
 				splitLine = lineFromFile.trim().split(" ");
 				findElement[0] = Integer.parseInt(splitLine[0]) - 1; //отнимаем 1 т.к. нумерация в матрицах считаем с нуля
 				findElement[1] = Integer.parseInt(splitLine[1]) - 1; //отнимаем 1 т.к. нумерация в матрицах считаем с нуля
-				if(findElement[0] < 0 || findElement[0] >= sizeOfMatrix ||
-				   findElement[1] < 0 || findElement[1] >= sizeOfMatrix) {
-					return false;
-				}
-			} else {
-				return false;
 			}
 			
 			//Получаем ограничение по значению чисел в матрицах
 			if ((lineFromFile = fileReader.readLine()) != null) {
 				numberLimit = Integer.parseInt(lineFromFile);
-				if (numberLimit < 0 || sizeOfMatrix > MAX_VALUE) {
-					return false;
-				}
-			} else {
-				return false;
 			}
 			
 			//Получаем значение матриц из файла
 			for (int count = 0; count < numOfMatrix; count++) {
 				lineFromFile = fileReader.readLine();
-				if (!lineFromFile.isEmpty() || lineFromFile == null) {
-					 return false;
-				}
 				
-				MatrixC matrixFromFile = new MatrixC(sizeOfMatrix);
+				Matrix matrixFromFile = new Matrix(sizeOfMatrix);
 				int numFromFile;
 				for (int i = 0; i < sizeOfMatrix; i++) {
 					lineFromFile = fileReader.readLine();
 						
 					splitLine = lineFromFile.trim().split(" ");
 					for (int j = 0; j < sizeOfMatrix; j++) {
-						numFromFile = Integer.parseInt(splitLine[j]);
-						if (numFromFile > 0 && numFromFile <= numberLimit) {
-							matrixFromFile.getMatrix()[i][j] = numFromFile;
-						} else {
-							return false;
-						}
+						matrixFromFile.getMatrix()[i][j] = Integer.parseInt(splitLine[j]);
 					}
 				}
 				matrixList.add(matrixFromFile);
@@ -146,3 +127,22 @@ public class MatrixMain {
 		}
 	}
 }
+
+class Matrix {
+	int size;
+	int[][] matrix;
+	
+	public Matrix(int size) {
+		this.size = size;
+		matrix = new int[size][size];
+	}
+
+	public int[][] getMatrix() {
+		return matrix;
+	}
+
+	public void setMatrix(int[][] matrix) {
+		this.matrix = matrix;
+	}
+}
+
