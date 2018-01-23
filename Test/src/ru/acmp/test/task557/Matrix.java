@@ -2,11 +2,11 @@ package ru.acmp.test.task557;
 
 import java.util.Arrays;
 
-public class MatrixC {
+public class Matrix {
 	int size;
 	int[][] matrix;
 	
-	public MatrixC(int size) {
+	public Matrix(int size) {
 		this.size = size;
 		matrix = new int[size][size];
 	}
